@@ -1,0 +1,4 @@
+/mnt/e/Analysis/SX3 Calibration/build/CMakeFiles/rebuild_cache.dir
+/mnt/e/Analysis/SX3 Calibration/build/CMakeFiles/edit_cache.dir
+/mnt/e/Analysis/SX3 Calibration/build/CMakeFiles/gainmatch.dir
+/mnt/e/Analysis/SX3 Calibration/build/CMakeFiles/calibrate.dir
