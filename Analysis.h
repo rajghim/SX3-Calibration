@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
-
+#include <TSpectrum.h>
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TCutG.h>
@@ -14,6 +14,8 @@
 #include <TF1.h>
 #include <TStyle.h>
 #include <TROOT.h>
+#include <algorithm>
+
 
 // Header file for the classes stored in the TTree if any.
 

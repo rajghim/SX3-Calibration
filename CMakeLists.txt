@@ -19,6 +19,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
 set(SCRIPTS
 SX3pedestals.dat
 SX3gains.dat
+SX3EnCal.dat
     )
 
 foreach(_script ${SCRIPTS})
@@ -33,6 +34,10 @@ add_executable(gainmatch Gainmatch.cpp)
 
 target_link_libraries(gainmatch ${ROOT_LIBRARIES})
 
-add_executable(calibrate Calibration.cpp)
+add_executable(energycalibrate EnergyCalibration.cpp)
 
-target_link_libraries(calibrate ${ROOT_LIBRARIES})
+target_link_libraries(energycalibrate ${ROOT_LIBRARIES} Spectrum)
+
+add_executable(positioncalibrate PositionCalibration.cpp)
+
+target_link_libraries(positioncalibrate ${ROOT_LIBRARIES})
