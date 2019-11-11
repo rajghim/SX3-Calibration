@@ -41,7 +41,7 @@ void Analysis::Loop() {
 
 		}
 	}
-
+	
 	
 	//Define Histograms here
 	//Histograms for all Upstream 12 SX3 detectors with 4 strips and 4 backs
@@ -59,7 +59,7 @@ void Analysis::Loop() {
 	}//End of Loop over Detectors
 	
 	//Create Output File   
-	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/newgains.root", "recreate");
+	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/Gains.root", "recreate");
 	
 
 
@@ -81,8 +81,8 @@ void Analysis::Loop() {
 			Float_t SX3RawEnergy = SX3RawStripRight + SX3RawStripLeft;
 		
 			
-			if (SX3Upstream[j] && SX3RawEnergy > 2650.)SX3_LvR[SX3Det[j]][SX3Strip[j]][SX3Sector[j]]->Fill(SX3RawStripRight,SX3RawStripLeft);
-
+			if (SX3Upstream[j] && SX3RawEnergy > 2670.)SX3_LvR[SX3Det[j]][SX3Strip[j]][SX3Sector[j]]->Fill(SX3RawStripRight,SX3RawStripLeft);
+			
 	
 		}// End of the multiplicity Loop	
     }// End of event by event analysis
@@ -91,13 +91,21 @@ void Analysis::Loop() {
     TF1* linefit = new TF1("linefit", "[0]*x + [1]",0,3000);
     outputFile->cd();
 
+    //Cleaning the dat file to save the gains
+    std::ofstream pfile;
+    pfile.open("/mnt/e/Analysis/SX3 Calibration/SX3gains.dat", std::ofstream::out | std::ofstream::trunc);
+    pfile.close();
+
     //Writing Histogram for 12*4*4 upstream SX3
    for (Int_t i=0; i<12; i++){
    	for (Int_t j=0; j<4; j++){
 		for (Int_t k=0; k<4;k++){
 			
 			 //Linear fitting to get the Slopes for gain matching
-			SX3_LvR[i][j][k]->Fit("linefit", "Q" , "", 0,3000);
+			Int_t Bin = SX3_LvR[i][j][k]->FindFirstBinAbove(3,1);
+			Float_t xvalue = ((TAxis*)SX3_LvR[i][j][k]->GetXaxis())->GetBinCenter(Bin);
+			//std::cout << xvalue << std::endl;
+			SX3_LvR[i][j][k]->Fit("linefit", "Q" , "", xvalue, xvalue+500);
 			std::ofstream pfile;
 			pfile.open("/mnt/e/Analysis/SX3 Calibration/SX3gains.dat", std::ofstream::app);
 			pfile << linefit->GetParameter (0) << std::endl;

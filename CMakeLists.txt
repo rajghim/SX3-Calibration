@@ -20,6 +20,7 @@ set(SCRIPTS
 SX3pedestals.dat
 SX3gains.dat
 SX3EnCal.dat
+SX3PosCal.dat
     )
 
 foreach(_script ${SCRIPTS})
@@ -41,3 +42,7 @@ target_link_libraries(energycalibrate ${ROOT_LIBRARIES} Spectrum)
 add_executable(positioncalibrate PositionCalibration.cpp)
 
 target_link_libraries(positioncalibrate ${ROOT_LIBRARIES})
+
+add_executable(fronttest Fronttest.cpp)
+
+target_link_libraries(fronttest ${ROOT_LIBRARIES})

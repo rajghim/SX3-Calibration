@@ -72,7 +72,7 @@ void Analysis::Loop() {
 
 
 	//Create Output File   
-	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/EnCaloutput.root", "recreate");
+	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/EnCal.root", "recreate");
 
 
     Long64_t nbytes = 0, nb = 0;
@@ -104,10 +104,13 @@ void Analysis::Loop() {
 	
 		}// End of the multiplicity Loop	
     }// End of event by event analysis
+
+    //Cleaning the dat file to save the gains
+    std::ofstream pfile;
+    pfile.open("/mnt/e/Analysis/SX3 Calibration/SX3EnCalChannels.dat", std::ofstream::out | std::ofstream::trunc);
+    pfile.close();
     
     //Define your fit function here
-    //TF1* fit_gaus = new TF1 ("fit_gaus","[0]*TMath::Exp(-pow((x-[1]),2)/(2*[2]*[2]))+[3]*TMath::Exp(-pow((x-[4]),2)/(2*[2]*[2]))+[5]*TMath::Exp(-pow((x-[6]),2)/(2*[2]*[2]))+[7]*TMath::Exp(-pow((x-[8]),2)/(2*[2]*[2]))+[9]*TMath::Exp(-pow((x-[10]),2)/(2*[2]*[2]))+[11]*TMath::Exp(-pow((x-[12]),2)/(2*[2]*[2]))+[13]*TMath::Exp(-pow((x-[14]),2)/(2*[2]*[2]))",1000,4000);
-
     TF1* fit_gaus = new TF1 ("fit_gaus","[0]*TMath::Exp(-pow((x-[1]),2)/(2*[2]*[2]))+[3]*TMath::Exp(-pow((x-[4]),2)/(2*[2]*[2]))+[5]*TMath::Exp(-pow((x-[6]),2)/(2*[2]*[2]))+[7]*TMath::Exp(-pow((x-[8]),2)/(2*[2]*[2]))+[9]*TMath::Exp(-pow((x-[10]),2)/(2*[2]*[2]))",1000,4000);
     
     Int_t npeaks = 5;

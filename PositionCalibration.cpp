@@ -83,7 +83,7 @@ void Analysis::Loop() {
 
 
 	//Create Output File   
-	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/PosCaloutput.root", "recreate");
+	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/PosCal.root", "recreate");
 
 
     Long64_t nbytes = 0, nb = 0;
