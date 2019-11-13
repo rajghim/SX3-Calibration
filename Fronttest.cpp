@@ -17,7 +17,12 @@ int main() {
 TChain* MakeChain() {
     auto *chain = new TChain("data");
     TString PathToFiles = "/mnt/e/goddessSort-master/Output/Run";
-    chain->Add(PathToFiles + "0446.root");
+
+    //chain->Add(PathToFiles + "0446.root"); //SX3 upstream 0-3
+    //chain->Add(PathToFiles + "0448.root"); //SX3 upstream 2-4 (detector 5 is empty. I am calibrating #4 with this file)
+    //chain->Add(PathToFiles + "0449.root"); // SX3 upstream 6-8
+    chain->Add(PathToFiles + "0447.root"); //SX3 upstream 8-10 (I am calibrating #9 and #10 with this file. Also, 11 is empty)
+
     return chain;
 }
 
@@ -118,13 +123,13 @@ void Analysis::Loop() {
 			
 			//Gains applied
 			Float_t RawStripLeft = SX3RawStripLeft; 
-			Float_t RawStripRight = -1. * SX3RawStripRight * (Gains[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])]);  
+			Float_t RawStripRight = -1. * SX3RawStripRight * (Gains[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])]);  
 		
 			//Energy and Position Calculations			
 			Float_t RawEnergy = RawStripRight + RawStripLeft; //Gain Matched Energy (No Calibration though)
-			Float_t Energy = RawEnergy * SX3EnCalSlope[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])] + SX3EnCalIntercept[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])]; //Energy Calibrated
+			Float_t Energy = RawEnergy * SX3EnCalSlope[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])] + SX3EnCalIntercept[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])]; //Energy Calibrated
 			Float_t RawPosition = ((RawStripRight - RawStripLeft) / Energy ); // Gain matched Position( Energy has been Calibrated but No Calibration in Position)
-			Float_t Position = (RawPosition * SX3PosCalSlope[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])]) + SX3PosCalIntercept[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])]; //Position Calibration applied
+			Float_t Position = (RawPosition * SX3PosCalSlope[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])]) + SX3PosCalIntercept[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])]; //Position Calibration applied
 
 			//std::cout << RawPosition << '\t' << Position << std::endl;
 		

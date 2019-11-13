@@ -1,5 +1,3 @@
-
-
 #define Analysis_cxx
 
 #include "Analysis.h"
@@ -21,7 +19,10 @@ TChain* MakeChain() {
     auto *chain = new TChain("data");
     TString PathToFiles = "/mnt/e/goddessSort-master/Output/Run";
 
-    chain->Add(PathToFiles + "0000.root");
+    //chain->Add(PathToFiles + "0446.root"); //SX3 Upstream 0-3
+    //chain->Add(PathToFiles + "0448.root"); //SX3 upstream 2-4 (detector 5 is empty. I am calibrating #4 with this file)
+    //chain->Add(PathToFiles + "0449.root"); // SX3 upstream 6-8
+    chain->Add(PathToFiles + "0447.root"); //SX3 upstream 8-10 (I am calibrating #9 and #10 with this file. Also, 11 is empty)
 
 
 
@@ -103,10 +104,10 @@ void Analysis::Loop() {
 		
 			//Gain Adjustement and Calibration Applied	
 			Float_t RawStripLeft = SX3RawStripLeft; 
-			Float_t RawStripRight = -1. * SX3RawStripRight * (Gains[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])]); //Gains applied 
+			Float_t RawStripRight = -1. * SX3RawStripRight * (Gains[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])]); //Gains applied 
 
 			Float_t RawEnergy = RawStripRight + RawStripLeft; // Gain matched Energy (No calibration though)
-			Float_t Energy = RawEnergy * EnCalSlope[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])] + EnCalIntercept[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])]; //Energy Calibrated
+			Float_t Energy = RawEnergy * EnCalSlope[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])] + EnCalIntercept[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])]; //Energy Calibrated
 			Float_t RawPosition = ((RawStripRight - RawStripLeft) / Energy ); // Gain matched Position( Energy has been Calibrated but No Calibration on Left and Right though)
 
 
@@ -116,6 +117,11 @@ void Analysis::Loop() {
 	
 		}// End of the multiplicity Loop	
     }// End of event by event analysis
+
+    //Cleaning the dat file to save the Position Calibration info
+    std::ofstream pfile;
+    pfile.open("/mnt/e/Analysis/SX3 Calibration/SX3PosCalinfo.dat", std::ofstream::out | std::ofstream::trunc);
+    pfile.close();
     
     //Define the fit function here;
     TF1* line = new TF1("line", "[0]",-1,1);
@@ -136,8 +142,8 @@ void Analysis::Loop() {
 			Float_t xmax = ((TAxis*)SX3_PosCal[i][j][k]->GetXaxis())->GetBinCenter(MaxBin); //This gives the x value at that bin
 			//std::cout << xmax << '\t' << ymax << std::endl;
 			line->SetParLimits(0,ymax-80,ymax+80);
-			SX3_PosCal[i][j][k]->Fit("line","Q","",xmax-0.03,xmax+0.03);
-			Float_t y = 0.33333333 * (line->GetParameter (0)); //Getting 25% of the ymax
+			SX3_PosCal[i][j][k]->Fit("line","Q","",xmax-0.02,xmax+0.03);
+			Float_t y = 0.25 * (line->GetParameter (0)); //Getting 25% of the ymax
 			//std::cout << y << std::endl;
 
 			//Looping over all the bins 

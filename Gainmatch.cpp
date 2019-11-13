@@ -19,7 +19,10 @@ TChain* MakeChain() {
     auto *chain = new TChain("data");
     TString PathToFiles = "/mnt/e/goddessSort-master/Output/Run";
 
-    chain->Add(PathToFiles + "0000.root");
+    //chain->Add(PathToFiles + "0446.root"); //SX3 upstream 0-3
+    //chain->Add(PathToFiles + "0448.root"); //SX3 upstream 2-4 (I am calibrating #4 with this file. Also, 5 is empty)
+    //chain->Add(PathToFiles + "0449.root"); // SX3 upstream 6-8
+    chain->Add(PathToFiles + "0447.root"); //SX3 upstream 8-10 (I am calibrating #9 and #10 with this file. Also, 11 is empty)
 
     return chain;
 }
@@ -60,6 +63,7 @@ void Analysis::Loop() {
 	
 	//Create Output File   
 	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/Gains.root", "recreate");
+	TFile* outputFile2 = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/Gainmatched.root", "recreate");
 	
 
 
@@ -102,7 +106,7 @@ void Analysis::Loop() {
 		for (Int_t k=0; k<4;k++){
 			
 			 //Linear fitting to get the Slopes for gain matching
-			Int_t Bin = SX3_LvR[i][j][k]->FindFirstBinAbove(3,1);
+			Int_t Bin = SX3_LvR[i][j][k]->FindFirstBinAbove(2,1);
 			Float_t xvalue = ((TAxis*)SX3_LvR[i][j][k]->GetXaxis())->GetBinCenter(Bin);
 			//std::cout << xvalue << std::endl;
 			SX3_LvR[i][j][k]->Fit("linefit", "Q" , "", xvalue, xvalue+500);
@@ -117,6 +121,7 @@ void Analysis::Loop() {
     }
 
     outputFile->Close();
+    
 }
 
 

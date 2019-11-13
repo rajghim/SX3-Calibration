@@ -1,5 +1,3 @@
-
-
 #define Analysis_cxx
 
 #include "Analysis.h"
@@ -21,7 +19,10 @@ TChain* MakeChain() {
     auto *chain = new TChain("data");
     TString PathToFiles = "/mnt/e/goddessSort-master/Output/Run";
 
-    chain->Add(PathToFiles + "0000.root");
+    //chain->Add(PathToFiles + "0446.root"); //SX3 upstream 0-3
+    //chain->Add(PathToFiles + "0448.root"); //SX3 upstream 2-4 (detector 5 is empty. I am calibrating #4 with this file)
+    //chain->Add(PathToFiles + "0449.root"); // SX3 upstream 6-8
+    chain->Add(PathToFiles + "0447.root"); //SX3 upstream 8-10 (I am calibrating #9 and #10 with this file. Also, 11 is empty)
 
 
 
@@ -54,18 +55,21 @@ void Analysis::Loop() {
 	Double_t Gains[192] = {0}; 
 	for (Int_t i=0; i<192; i++){
 			gainfile >>Gains[i];
-			//std::cout << Gains[2] << std::endl;
+			//std::cout << Gains[12] << std::endl;
 	}
 
 
 	//Define Histograms here
 	//Histograms without the gains applied
 	TH1F *SX3_EnCal[12][4][4]; // E = L+R Histogram for the Calibration of the Energy
+	TH2F *SX3_EvP[12][4][4]; //Energy vs Position for 12*4*4 Upstream SX3
 	for (Int_t i=0; i<12; i++){ // Loop over detectors
 		for (Int_t j=0; j<4; j++){ //Loop over the strips
 			for (Int_t k=0; k<4; k++){ // Loop over the backs
 				std::string nameSX3_EnCal = Form("SX3_EnCal_Det%i_Strip_%i_Back%i",i,j,k);
+				std::string nameSX3_EvP = Form("SX3_%i_Strip_%i_Back_%i_EvP",i,j,k);
 				SX3_EnCal[i][j][k] = new TH1F(nameSX3_EnCal.c_str(), "SX3 Energy Spectrum for Front Side Energy Calibration",1000,1000,4000);
+				SX3_EvP[i][j][k] = new TH2F(nameSX3_EvP.c_str(), "SX3 detector Energy vs Position", 2000,-2,2,2000,0,7000);
 			}//End of loop over backs
 		}//End of Loop over Fronts
 	}//End of Loop over Detectors
@@ -73,6 +77,7 @@ void Analysis::Loop() {
 
 	//Create Output File   
 	TFile* outputFile = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/EnCal.root", "recreate");
+	TFile* outputFile2 = new TFile("/mnt/e/Analysis/SX3 Calibration/Output/Gainmatched.root", "recreate");
 
 
     Long64_t nbytes = 0, nb = 0;
@@ -92,7 +97,7 @@ void Analysis::Loop() {
 		
 			//Gain Adjustement and Calibration Applied	
 			Float_t RawStripLeft = SX3RawStripLeft; 
-			Float_t RawStripRight = -1. * SX3RawStripRight * (Gains[(SX3Det[j]*12)+(SX3Strip[j]*4)+(SX3Sector[j])]); //Gains applied 
+			Float_t RawStripRight = -1. * SX3RawStripRight * (Gains[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])]); //Gains applied 
 
 			Float_t RawEnergy = RawStripRight + RawStripLeft; // Gain matched Energy (No calibration though)
 			Float_t RawPosition = ((RawStripRight - RawStripLeft) / RawEnergy ); // Gain matched Position(No Calibration on Left and Right though)
@@ -100,6 +105,7 @@ void Analysis::Loop() {
 
 			//Filling the histograms here
 			if (SX3Upstream[j])SX3_EnCal[SX3Det[j]][SX3Strip[j]][SX3Sector[j]]->Fill(RawEnergy);
+			if (SX3Upstream[j])SX3_EvP[SX3Det[j]][SX3Strip[j]][SX3Sector[j]]->Fill(RawPosition,RawEnergy);
 		
 	
 		}// End of the multiplicity Loop	
@@ -151,6 +157,16 @@ void Analysis::Loop() {
       
 
     outputFile->Close();
+    outputFile2->cd();
+   //Writing Histogram for 12*4*4 upstream SX3
+   for (Int_t i=0; i<12; i++){
+   	for (Int_t j=0; j<4; j++){
+		for (Int_t k=0; k<4;k++){
+			SX3_EvP[i][j][k]->Write();
+		}
+	}
+    }
+    outputFile2->Close();
 }
 
 
