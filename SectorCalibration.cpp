@@ -2,7 +2,7 @@
  * SectorCalibration.cpp script can be used to alpha calibrate energies  *
  * for the back sectors of SX3 detectors.             			 *
  *                                                                       *
- * Event by event pedestal substraction is done and secotr Energy is     *
+ * Event by event pedestal substraction is done and sector Energy is     *
  * projected onto 1D Energy histograms (12 dets*4 strips*4 sectors)	 *
  * Energy calibration (for 12 dets*4 strips*4sectors) is done by gaussian*
  * fit of each histograms. The channel numbers are then saved in         *
@@ -33,6 +33,8 @@ TChain* MakeChain() {
     auto *chain = new TChain("data");
     TString PathToFiles = "/mnt/e/goddessSort-master/Output/Run";
 
+
+    //Choose your detector
     chain->Add(PathToFiles + "0446.root"); //SX3 upstream 0-3
     //chain->Add(PathToFiles + "0448.root"); //SX3 upstream 2-4 (detector 5 is empty. I am calibrating #4 with this file)
     //chain->Add(PathToFiles + "0449.root"); // SX3 upstream 6-8
@@ -118,7 +120,7 @@ void Analysis::Loop() {
    	for (Int_t j=0; j<4; j++){
 		for (Int_t k=0; k<4;k++){
 
-			Int_t nfound = s->Search(SX3_SectorEnCal[i][j][k],2.5,"",0.4);
+			Int_t nfound = s->Search(SX3_SectorEnCal[i][j][k],2.5,"",0.3);
 			Double_t *xpeaks = s->GetPositionX();
 			for (Int_t p=0; p<nfound; p++){
  				xp[p] = xpeaks[p];

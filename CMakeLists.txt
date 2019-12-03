@@ -20,10 +20,8 @@ set(SCRIPTS
 SX3pedestals.dat
 SX3gains.dat
 SX3EnCal.dat
-SX3PosCalinfo.dat
 SX3PosCal.dat
 Sectorpedestals.dat
-SX3SectorEnCalChannels.dat
 SX3SectorEnCal.dat
     )
 
@@ -54,4 +52,20 @@ target_link_libraries(fronttest ${ROOT_LIBRARIES})
 add_executable(sectorcalibrate SectorCalibration.cpp)
 
 target_link_libraries(sectorcalibrate ${ROOT_LIBRARIES} Spectrum)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

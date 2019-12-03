@@ -6,7 +6,7 @@
  * drawn for different strips and sectors (12 dets *4 strips * 4 sectors)*
  * Highest energy alpha line is then separated and linear fit gives slope*
  * At the current stage, the average of 4 slopes (from 4 sectors) is     *
- * calculated for each strip and is stored in a dat file.                *
+ * calculated for each strip and is stored in  SX3gains.dat file         *
  * 									 *
  * To see if the linear fit is correct, Gains.root file is created inside*
  * the Output directory							 *
@@ -33,6 +33,7 @@ TChain* MakeChain() {
     auto *chain = new TChain("data");
     TString PathToFiles = "/mnt/e/goddessSort-master/Output/Run";
 
+    //Choose your detector 
     chain->Add(PathToFiles + "0446.root"); //SX3 upstream 0-3
     //chain->Add(PathToFiles + "0448.root"); //SX3 upstream 2-4 (Currently, I am calibrating #4 with this file. Also, #5 is empty)
     //chain->Add(PathToFiles + "0449.root"); // SX3 upstream 6-8
@@ -50,13 +51,10 @@ void Analysis::Loop() {
 	//Open the pedestals File 
 	std::ifstream file;
 	file.open("SX3pedestals.dat");
-	Double_t Pedestals[12][8] = {0};
-	for (Int_t i = 0; i<12;i++){
-		for (Int_t k=0; k<8; k++){
-			file >> Pedestals[i][k];	
-			//std::cout << Pedestals[10][6];
-
-		}
+	Double_t LeftPed[192] = {0};
+	Double_t RightPed[192] = {0};
+	for (Int_t i = 0; i<192;i++){
+		file >> LeftPed[i] >> RightPed[i];		
 	}
 	
 	
@@ -67,7 +65,6 @@ void Analysis::Loop() {
 		for (Int_t j=0; j<4; j++){ //Loop over the strips
 			for (Int_t k=0; k<4; k++){ // Loop over the backs
 				std::string nameSX3_LvR = Form("SX3_%i_Strip_%i_Back_%i_LvR",i,j,k);
-				std::string nameSX3_EvP = Form("SX3_%i_Strip_%i_Back_%i_EvP",i,j,k);
 				SX3_LvR[i][j][k] = new TH2F(nameSX3_LvR.c_str(), "SX3 detector Left vs Right", 1000,0,3000,1000,0,3000);
 			}//End of loop over backs
 		}//End of Loop over Fronts
@@ -90,13 +87,13 @@ void Analysis::Loop() {
 		for(Int_t j=0; j<SX3Mul; j++){
 			
 			//Pedestal Substraction
-			Float_t SX3RawStripRight = SX3StripRightADC[j] - Pedestals[SX3Det[j]][SX3Strip[j]*2];
-			Float_t SX3RawStripLeft = SX3StripLeftADC[j] - Pedestals[SX3Det[j]][SX3Strip[j]*2+1];
+			Float_t SX3RawStripRight = SX3StripRightADC[j] - RightPed[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])];
+			Float_t SX3RawStripLeft = SX3StripLeftADC[j] - LeftPed[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])];
 
 			Float_t SX3RawEnergy = SX3RawStripRight + SX3RawStripLeft;
 		
 			//Fill your histograms here
-			if (SX3Upstream[j] && SX3RawEnergy > 2890.)SX3_LvR[SX3Det[j]][SX3Strip[j]][SX3Sector[j]]->Fill(SX3RawStripRight,SX3RawStripLeft); 
+			if (SX3Upstream[j] && SX3RawEnergy > 2700.)SX3_LvR[SX3Det[j]][SX3Strip[j]][SX3Sector[j]]->Fill(SX3RawStripRight,SX3RawStripLeft); 
 			
 	
 		}// End of the multiplicity Loop	

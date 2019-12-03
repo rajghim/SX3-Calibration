@@ -9,7 +9,7 @@
  * histogram. The ends (x1 & x2)are calculated by taking x-values at 50% *
  * of y-max. Then x1 and x2 are stored in PosCal.dat file.               *
  * 			                				 *									 
- * To see if x1 and x2 are correct, PosCal.root file is created in       *
+ * To see if x1 and x2 are correct, SX3PosCal.root file is created in    *
  * the Output directory. Encalled.root file is also created which has    *
  * calibrated EvP histograms.    				         *
  *************************************************************************/
@@ -36,6 +36,8 @@ TChain* MakeChain() {
     auto *chain = new TChain("data");
     TString PathToFiles = "/mnt/e/goddessSort-master/Output/Run";
 
+  
+    //Choose your detector
     chain->Add(PathToFiles + "0446.root"); //SX3 Upstream 0-3
     //chain->Add(PathToFiles + "0448.root"); //SX3 upstream 2-4 (detector #5 is empty. I am calibrating #4 with this file)
     //chain->Add(PathToFiles + "0449.root"); // SX3 upstream 6-8
@@ -57,14 +59,11 @@ void Analysis::Loop() {
 	//Open the pedestals File 
 	std::ifstream file;
 	file.open("SX3pedestals.dat");
-	Double_t Pedestals[12][8] = {0};
-	for (Int_t i = 0; i<12;i++){
-		for (Int_t k=0; k<8; k++){
-			file >> Pedestals[i][k];	
-			//std::cout << Pedestals[10][6];
-		}
+	Double_t LeftPed[192] = {0};
+	Double_t RightPed[192] = {0};
+	for (Int_t i = 0; i<192;i++){
+		file >> LeftPed[i] >> RightPed[i];		
 	}
-
 
 	//Open the gains file
 	std::ifstream gainfile;
@@ -120,8 +119,8 @@ void Analysis::Loop() {
 		for(Int_t j=0; j<SX3Mul; j++){
 			
 			//Without gains (Pedestals Substracted)
-			Float_t SX3RawStripRight = SX3StripRightADC[j] - Pedestals[SX3Det[j]][SX3Strip[j]*2];
-			Float_t SX3RawStripLeft = SX3StripLeftADC[j] - Pedestals[SX3Det[j]][SX3Strip[j]*2+1];
+			Float_t SX3RawStripRight = SX3StripRightADC[j] - RightPed[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])];
+			Float_t SX3RawStripLeft = SX3StripLeftADC[j] - LeftPed[(SX3Det[j]*16)+(SX3Strip[j]*4)+(SX3Sector[j])];
 		
 			//Gain Adjustement and Calibration Applied	
 			Float_t RawStripLeft = SX3RawStripLeft; 
@@ -189,7 +188,7 @@ void Analysis::Loop() {
 				if (yvalue[p]>y && yvalue[p+1]<y){
 					Float_t m = (yvalue[p+1]-yvalue[p])/(xvalue[p+1]-xvalue[p]); //Calculating slope from the value greater than and smaller than y 
 					xright = ((y-yvalue[p])/m) + xvalue[p];
-					std::cout << i << '\t' << j << '\t' << ymax << '\t' << y << '\t' << xright <<std::endl;
+					//std::cout << i << '\t' << j << '\t' << ymax << '\t' << y << '\t' << xright <<std::endl;
 					break;
 
 				}
